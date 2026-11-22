@@ -35,8 +35,12 @@ final class CounterexampleEngine
     }
 
     /** @param array<string, Action|null> $predecessors */
-    public function explain(TransitionSystem $model, array $predecessors, State|Action $violation): array
-    {
+    public function explain(
+        TransitionSystem $model,
+        array $predecessors,
+        State|Action $violation,
+        ?callable $observePath = null,
+    ): array {
         $path = (new GraphSearch())->shortestPath(
             $predecessors,
             $violation instanceof Action ? $violation->from : $violation->id,
@@ -56,6 +60,9 @@ final class CounterexampleEngine
             $failedAt = ['scope' => 'state', 'state' => $violation->id, 'facts' => (object) $violation->facts];
         }
 
+        if ($observePath !== null) {
+            $observePath($actions);
+        }
         $steps = [];
         foreach ($actions as $action) {
             $steps[] = $this->steps[$action] ??= $this->describeStep($model, $action);

@@ -1,0 +1,100 @@
+{
+    "php_version":  "8.2.12",
+    "report":  {
+                   "fixture":  "corrected-controls",
+                   "evidence_type":  "PHP_CONTROL_ASSERTIONS",
+                   "http_replay_status":  "NOT_RUN",
+                   "runtime_reproduced":  false,
+                   "checks":  [
+                                  {
+                                      "id":  "mfa-required",
+                                      "status":  "PASS",
+                                      "expected":  {
+                                                       "before_mfa":  null,
+                                                       "exports_before_mfa":  0,
+                                                       "after_mfa":  "synthetic-export-record",
+                                                       "exports":  1
+                                                   },
+                                      "observed":  {
+                                                       "before_mfa":  null,
+                                                       "exports_before_mfa":  0,
+                                                       "after_mfa":  "synthetic-export-record",
+                                                       "exports":  1
+                                                   }
+                                  },
+                                  {
+                                      "id":  "session-revocation",
+                                      "status":  "PASS",
+                                      "expected":  {
+                                                       "before_revoke":  "synthetic-export-record",
+                                                       "after_revoke":  null,
+                                                       "exports":  1
+                                                   },
+                                      "observed":  {
+                                                       "before_revoke":  "synthetic-export-record",
+                                                       "after_revoke":  null,
+                                                       "exports":  1
+                                                   }
+                                  },
+                                  {
+                                      "id":  "permission-revocation",
+                                      "status":  "PASS",
+                                      "expected":  {
+                                                       "before_revoke":  true,
+                                                       "after_revoke":  false,
+                                                       "record_revision":  1
+                                                   },
+                                      "observed":  {
+                                                       "before_revoke":  true,
+                                                       "after_revoke":  false,
+                                                       "record_revision":  1
+                                                   }
+                                  },
+                                  {
+                                      "id":  "token-single-use",
+                                      "status":  "PASS",
+                                      "expected":  {
+                                                       "wrong_token":  false,
+                                                       "first_use":  true,
+                                                       "second_use":  false,
+                                                       "reset_revision":  1
+                                                   },
+                                      "observed":  {
+                                                       "wrong_token":  false,
+                                                       "first_use":  true,
+                                                       "second_use":  false,
+                                                       "reset_revision":  1
+                                                   }
+                                  },
+                                  {
+                                      "id":  "session-isolation",
+                                      "status":  "PASS",
+                                      "expected":  {
+                                                       "distinct_sessions":  true,
+                                                       "other_session":  null,
+                                                       "original_session":  "synthetic-export-record",
+                                                       "exports":  1
+                                                   },
+                                      "observed":  {
+                                                       "distinct_sessions":  true,
+                                                       "other_session":  null,
+                                                       "original_session":  "synthetic-export-record",
+                                                       "exports":  1
+                                                   }
+                                  },
+                                  {
+                                      "id":  "session-store-cleanup",
+                                      "status":  "PASS",
+                                      "expected":  {
+                                                       "removed":  true
+                                                   },
+                                      "observed":  {
+                                                       "removed":  true
+                                                   }
+                                  }
+                              ],
+                   "status":  "PASS",
+                   "passed":  6,
+                   "failed":  0
+               }
+}

@@ -28,6 +28,29 @@ final readonly class BooleanLogic
         return $this->evaluateExpression($this->expression, $facts, $post);
     }
 
+    /** @return array{result: bool, operands: list<array{expression: mixed, value: bool|int|string}>, truncated: bool} */
+    public function explain(array $facts, array $post = []): array
+    {
+        $operands = [];
+        $truncated = false;
+        $result = $this->evaluateExpression(
+            $this->expression,
+            $facts,
+            $post,
+            static function (bool|int|string|array $expression, bool|int|string $value) use (&$operands, &$truncated): void {
+                if (count($operands) === 32) {
+                    $truncated = true;
+                    return;
+                }
+                $label = is_array($expression) && !in_array($expression[0], ['literal', 'pre', 'post'], true)
+                    ? $expression[0]
+                    : $expression;
+                $operands[] = ['expression' => $label, 'value' => $value];
+            },
+        );
+        return ['result' => $result, 'operands' => $operands, 'truncated' => $truncated];
+    }
+
     private function typeOf(mixed $expression, int $depth = 0): string
     {
         if ($depth >= 128) {
@@ -94,29 +117,38 @@ final readonly class BooleanLogic
         }
     }
 
-    private function evaluateExpression(bool|int|string|array $expression, array $facts, array $post): bool|int|string
+    private function evaluateExpression(
+        bool|int|string|array $expression,
+        array $facts,
+        array $post,
+        ?callable $observe = null,
+    ): bool|int|string {
+        $value = match (true) {
+            is_bool($expression), is_int($expression) => $expression,
+            is_string($expression) => $this->readFact($expression, $facts),
+            default => $this->evaluateOperator($expression, $facts, $post, $observe),
+        };
+        if ($observe !== null) {
+            $observe($expression, $value);
+        }
+        return $value;
+    }
+
+    private function evaluateOperator(array $expression, array $facts, array $post, ?callable $observe): bool|int|string
     {
-        if (is_bool($expression) || is_int($expression)) {
-            return $expression;
-        }
-
-        if (is_string($expression)) {
-            return $this->readFact($expression, $facts);
-        }
-
         return match ($expression[0]) {
             'literal' => $expression[1],
             'pre' => $this->readFact($expression[1], $facts),
             'post' => $this->readFact($expression[1], $post),
-            'not' => !$this->evaluateExpression($expression[1], $facts, $post),
-            'implies' => !$this->evaluateExpression($expression[1], $facts, $post)
-                || $this->evaluateExpression($expression[2], $facts, $post),
-            'and' => $this->evaluateOperands($expression, $facts, $post, true),
-            'or' => $this->evaluateOperands($expression, $facts, $post, false),
+            'not' => !$this->evaluateExpression($expression[1], $facts, $post, $observe),
+            'implies' => !$this->evaluateExpression($expression[1], $facts, $post, $observe)
+                || $this->evaluateExpression($expression[2], $facts, $post, $observe),
+            'and' => $this->evaluateOperands($expression, $facts, $post, true, $observe),
+            'or' => $this->evaluateOperands($expression, $facts, $post, false, $observe),
             default => $this->compare(
                 $expression[0],
-                $this->evaluateExpression($expression[1], $facts, $post),
-                $this->evaluateExpression($expression[2], $facts, $post),
+                $this->evaluateExpression($expression[1], $facts, $post, $observe),
+                $this->evaluateExpression($expression[2], $facts, $post, $observe),
             ),
         };
     }
@@ -142,11 +174,16 @@ final readonly class BooleanLogic
         };
     }
 
-    private function evaluateOperands(array $expression, array $facts, array $post, bool $all): bool
-    {
+    private function evaluateOperands(
+        array $expression,
+        array $facts,
+        array $post,
+        bool $all,
+        ?callable $observe,
+    ): bool {
         $count = count($expression);
         for ($index = 1; $index < $count; ++$index) {
-            if ($this->evaluateExpression($expression[$index], $facts, $post) !== $all) {
+            if ($this->evaluateExpression($expression[$index], $facts, $post, $observe) !== $all) {
                 return !$all;
             }
         }

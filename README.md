@@ -2,6 +2,20 @@
 
 PHP Security Flow Checker is a Core PHP command-line model checker for finite security workflows. Phase 2 adds typed state domains, guarded transitions, operation-time security rules, and deterministic findings with shortest counterexamples.
 
+## Local dashboard
+
+Use PHP 8.2 or later with the session extension. From the repository root, start the local server with `public/` as its document root.
+
+```sh
+php -S 127.0.0.1:8080 -t public
+```
+
+On XAMPP for Windows, use `C:\xampp\php\php.exe -S 127.0.0.1:8080 -t public` from the same directory. Open [the local dashboard](http://127.0.0.1:8080/).
+
+Select a bundled model, set exploration limits, and run verification. The dashboard records the analyzer's actual result in the browser session. Inspect the SVG state graph, step through a counterexample, review fixed-point iterations and policy evaluations, or compare two model runs. Reports offers JSON, HTML and counterexample downloads.
+
+Run the Phase 4 server-side suite with `php tests/dashboard.php` or `php -n tests/dashboard.php`. The dashboard and CLI share the PHP verification engine. HTTP replay remains an outstanding Phase 3 milestone and the interface displays `NOT_RUN`. [Dashboard setup](docs/DASHBOARD.md) · [Graph controls](docs/GRAPH_VISUALIZATION.md) · [Mathematical visualization](docs/MATHEMATICAL_VISUALIZATION.md)
+
 ## Installation and usage
 
 Use PHP 8.2 or later with the CLI available on your `PATH`. Open a terminal in the repository root and run these commands.

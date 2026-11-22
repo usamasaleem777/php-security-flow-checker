@@ -27,6 +27,7 @@ final readonly class TransitionSystem
         public array $outgoing,
         public ?BooleanLogic $invariant,
         public array $properties,
+        public array $domains,
     ) {
     }
 
@@ -116,7 +117,7 @@ final readonly class TransitionSystem
             throw new InvalidArgumentException('A property references an unknown transition action.');
         }
 
-        return new self($name, $initialStates, $states, $outgoing, $invariant, $properties);
+        return new self($name, $initialStates, $states, $outgoing, $invariant, $properties, $domains);
     }
 
     private static function domains(mixed $value): array
