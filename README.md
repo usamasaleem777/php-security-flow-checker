@@ -103,3 +103,14 @@ The engine computes a least fixed point over enabled edges and uses multi-source
 | `bin/stateaxiom.php` | Read a local model, run the analyzer, and return the outcome's exit code. |
 
 Model adequacy determines what a result says about an application. A finding demonstrates an assertion failure in the supplied graph. Runtime confirmation requires independent evidence. The analyzer covers explicit finite state and transition safety. Time and concurrency are considered only where encoded in the model, and liveness properties such as eventual progress are outside its scope.
+
+## Corrected PHP control tests
+
+Run the opt-in CLI fixture suite to check MFA enforcement, session and permission revocation, single-use tokens, session isolation, and temporary session-store cleanup.
+
+```sh
+php tests/corrected-controls.php
+php -n tests/corrected-controls.php
+```
+
+The suite runs corrected PHP code in the CLI process and compares actual operation results and side effects against expectations. It reports `PHP_CONTROL_ASSERTIONS` with `http_replay_status: "NOT_RUN"`. See the [test instructions](docs/RUNTIME_VERIFICATION.md), [evidence model](docs/EVIDENCE_MODEL.md), and [security boundaries](docs/SECURITY_BOUNDARIES.md).
