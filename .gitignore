@@ -1,0 +1,36 @@
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencies
+/vendor/
+composer.phar
+
+# Runtime and temporary files
+/cache/
+/tmp/
+/logs/
+*.log
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Test and coverage output
+/coverage/
+/.phpunit.cache/
+/.phpunit.result.cache
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local settings
+/config/local.php
