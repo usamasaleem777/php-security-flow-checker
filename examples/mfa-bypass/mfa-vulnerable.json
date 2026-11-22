@@ -1,0 +1,19 @@
+{
+    "name": "mfa-vulnerable",
+    "facts": ["primary_verified", "mfa_verified", "protected_access"],
+    "initial": ["signed_out"],
+    "states": [
+        {"id": "signed_out", "facts": {"primary_verified": false, "mfa_verified": false, "protected_access": false}},
+        {"id": "primary_verified", "facts": {"primary_verified": true, "mfa_verified": false, "protected_access": false}},
+        {"id": "mfa_verified", "facts": {"primary_verified": true, "mfa_verified": true, "protected_access": false}},
+        {"id": "protected", "facts": {"primary_verified": true, "mfa_verified": true, "protected_access": true}},
+        {"id": "protected_without_mfa", "facts": {"primary_verified": true, "mfa_verified": false, "protected_access": true}}
+    ],
+    "transitions": [
+        {"from": "signed_out", "to": "primary_verified", "action": "record_primary"},
+        {"from": "primary_verified", "to": "mfa_verified", "action": "record_mfa"},
+        {"from": "mfa_verified", "to": "protected", "action": "grant_access"},
+        {"from": "primary_verified", "to": "protected_without_mfa", "action": "grant_access"}
+    ],
+    "invariant": ["implies", "protected_access", ["and", "primary_verified", "mfa_verified"]]
+}

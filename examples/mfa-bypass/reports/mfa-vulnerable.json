@@ -1,0 +1,42 @@
+{
+    "status": "VIOLATED",
+    "model": "mfa-vulnerable",
+    "invariant": [
+        "implies",
+        "protected_access",
+        [
+            "and",
+            "primary_verified",
+            "mfa_verified"
+        ]
+    ],
+    "reachability": {
+        "model_states": 5,
+        "states_reached": 5,
+        "max_depth_explored": 3,
+        "depth_limit": null,
+        "fixed_point_reached": true
+    },
+    "counterexample": {
+        "length": 2,
+        "initial_state": "signed_out",
+        "transitions": [
+            {
+                "from": "signed_out",
+                "to": "primary_verified",
+                "action": "record_primary"
+            },
+            {
+                "from": "primary_verified",
+                "to": "protected_without_mfa",
+                "action": "grant_access"
+            }
+        ],
+        "violating_state": "protected_without_mfa",
+        "violating_facts": {
+            "primary_verified": true,
+            "mfa_verified": false,
+            "protected_access": true
+        }
+    }
+}

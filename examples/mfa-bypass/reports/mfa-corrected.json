@@ -1,0 +1,21 @@
+{
+    "status": "VERIFIED",
+    "model": "mfa-corrected",
+    "invariant": [
+        "implies",
+        "protected_access",
+        [
+            "and",
+            "primary_verified",
+            "mfa_verified"
+        ]
+    ],
+    "reachability": {
+        "model_states": 5,
+        "states_reached": 4,
+        "max_depth_explored": 3,
+        "depth_limit": null,
+        "fixed_point_reached": true
+    },
+    "counterexample": null
+}
