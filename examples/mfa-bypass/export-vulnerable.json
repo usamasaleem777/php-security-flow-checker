@@ -1,0 +1,20 @@
+{
+    "name": "mfa-bypass-export-vulnerable",
+    "domains": {"authenticated":"boolean","mfa_verified":"boolean"},
+    "initial": ["signed_out"],
+    "states": [
+        {"id":"signed_out","facts":{"authenticated":false,"mfa_verified":false}},
+        {"id":"signed_in","facts":{"authenticated":true,"mfa_verified":false}},
+        {"id":"verified","facts":{"authenticated":true,"mfa_verified":true}}
+    ],
+    "transitions": [
+        {"from":"signed_out","to":"signed_in","action":"begin_session"},
+        {"from":"signed_in","to":"verified","action":"record_mfa"},
+        {"from":"verified","to":"verified","action":"export","succeeded":true,"guard":"mfa_verified"},
+        {"from":"signed_in","to":"signed_in","action":"export","succeeded":false},
+        {"from":"signed_in","to":"signed_in","action":"export","succeeded":true}
+    ],
+    "properties": [
+        {"id":"export-mfa","rule":"mfa-bypass","action":"export","bindings":{"authenticated":"authenticated","mfa_verified":"mfa_verified"}}
+    ]
+}

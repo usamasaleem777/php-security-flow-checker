@@ -1,0 +1,87 @@
+{
+    "project": "PHP Security Flow Checker",
+    "phase": 2,
+    "model": "mfa-bypass-export-vulnerable",
+    "status": "VIOLATED",
+    "evidence_type": "MODEL_COUNTEREXAMPLE",
+    "runtime_reproduced": false,
+    "analysis_complete": true,
+    "incomplete_reasons": [],
+    "states_explored": 3,
+    "transitions_explored": 5,
+    "transitions_considered": 5,
+    "reachability": {
+        "model_states": 3,
+        "max_depth_explored": 2,
+        "fixed_point_reached": true,
+        "depth_limit": null,
+        "state_limit": null
+    },
+    "findings": [
+        {
+            "id": "mfa-bypass-export-vulnerable.export-mfa",
+            "rule_id": "mfa-bypass",
+            "property_id": "export-mfa",
+            "model_id": "mfa-bypass-export-vulnerable",
+            "category": "MFA_BYPASS",
+            "explanation": "The modeled operation succeeded without both authentication and verified MFA.",
+            "assertion": [
+                "and",
+                "authenticated",
+                "mfa_verified"
+            ],
+            "counterexample": {
+                "length": 2,
+                "initial_state": "signed_out",
+                "transitions": [
+                    {
+                        "from": "signed_out",
+                        "to": "signed_in",
+                        "action": "begin_session",
+                        "succeeded": null,
+                        "changes": {
+                            "authenticated": {
+                                "before": false,
+                                "after": true
+                            }
+                        }
+                    },
+                    {
+                        "from": "signed_in",
+                        "to": "signed_in",
+                        "action": "export",
+                        "succeeded": true,
+                        "changes": {}
+                    }
+                ],
+                "violation": {
+                    "scope": "transition",
+                    "transition": {
+                        "from": "signed_in",
+                        "to": "signed_in",
+                        "action": "export"
+                    },
+                    "succeeded": true,
+                    "pre": {
+                        "authenticated": true,
+                        "mfa_verified": false
+                    },
+                    "post": {
+                        "authenticated": true,
+                        "mfa_verified": false
+                    }
+                }
+            },
+            "evidence_type": "MODEL_COUNTEREXAMPLE",
+            "status": "VIOLATED",
+            "remediation": "Require verified MFA for the current authenticated session before allowing the operation.",
+            "assumptions": [
+                "The supplied facts and transitions represent the workflow being checked."
+            ],
+            "limitations": [
+                "Evidence comes from the declared finite model."
+            ],
+            "runtime_reproduced": false
+        }
+    ]
+}

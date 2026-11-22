@@ -1,0 +1,21 @@
+{
+    "project": "PHP Security Flow Checker",
+    "phase": 2,
+    "model": "mfa-bypass-export-corrected",
+    "status": "VERIFIED",
+    "evidence_type": "FINITE_MODEL_ANALYSIS",
+    "runtime_reproduced": false,
+    "analysis_complete": true,
+    "incomplete_reasons": [],
+    "states_explored": 3,
+    "transitions_explored": 4,
+    "transitions_considered": 5,
+    "reachability": {
+        "model_states": 3,
+        "max_depth_explored": 2,
+        "fixed_point_reached": true,
+        "depth_limit": null,
+        "state_limit": null
+    },
+    "findings": []
+}

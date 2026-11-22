@@ -58,6 +58,12 @@ function verifyGraph(array $graph, ?int $limit = null): array
 
 function runCli(string ...$arguments): array
 {
+    [$exitCode, $stdout] = runCliOutput(...$arguments);
+    return [$exitCode, json_decode($stdout, true, flags: JSON_THROW_ON_ERROR)];
+}
+
+function runCliOutput(string ...$arguments): array
+{
     $process = proc_open(
         [PHP_BINARY, '-n', __DIR__ . '/../bin/stateaxiom.php', ...$arguments],
         [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
@@ -75,7 +81,7 @@ function runCli(string ...$arguments): array
     $exitCode = proc_close($process);
 
     expectSame('', $stderr);
-    return [$exitCode, json_decode($stdout, true, flags: JSON_THROW_ON_ERROR)];
+    return [$exitCode, $stdout];
 }
 
 $tests = [
@@ -122,6 +128,10 @@ $tests = [
             expectInvalid(static fn () => verifyGraph($model));
         }
         expectInvalid(static fn () => TransitionSystem::fromJson('{"broken":'));
+        expectInvalid(static fn () => TransitionSystem::fromJson(
+            '{"name":"test","facts":["safe"],"initial":["start"],' .
+            '"states":[{"id":"start","facts":{"safe":false,"\u0073afe":true}}],"transitions":[],"invariant":"safe"}',
+        ));
         expectInvalid(static fn () => TransitionSystem::fromJson(str_repeat(' ', TransitionSystem::MAX_JSON_BYTES + 1)));
         expectInvalid(static fn () => verifyGraph($base, -1));
     },
@@ -247,6 +257,8 @@ $tests = [
         }
     },
 ];
+
+$tests += require __DIR__ . '/phase2.php';
 
 $failed = 0;
 foreach ($tests as $label => $test) {

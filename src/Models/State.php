@@ -6,7 +6,7 @@ namespace SecurityFlow\Models;
 
 final readonly class State
 {
-    /** @param array<string, bool> $facts */
+    /** @param array<string, bool|int|string> $facts */
     public function __construct(public string $id, public array $facts)
     {
     }

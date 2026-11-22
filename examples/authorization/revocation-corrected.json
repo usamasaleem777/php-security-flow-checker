@@ -1,0 +1,18 @@
+{
+    "name": "authorization-revocation-corrected",
+    "domains": {"permission_revoked":"boolean"},
+    "initial": ["granted"],
+    "states": [
+        {"id":"granted","facts":{"permission_revoked":false}},
+        {"id":"revoked","facts":{"permission_revoked":true}}
+    ],
+    "transitions": [
+        {"from":"granted","to":"granted","action":"update","succeeded":true,"guard":["not","permission_revoked"]},
+        {"from":"granted","to":"revoked","action":"record_revocation"},
+        {"from":"revoked","to":"revoked","action":"update","succeeded":false},
+        {"from":"revoked","to":"revoked","action":"update","succeeded":true,"guard":["not","permission_revoked"]}
+    ],
+    "properties": [
+        {"id":"update-after-revocation","rule":"permission-revocation","action":"update","bindings":{"permission_revoked":"permission_revoked"}}
+    ]
+}

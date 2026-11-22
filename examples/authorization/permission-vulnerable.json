@@ -1,0 +1,18 @@
+{
+    "name": "authorization-permission-vulnerable",
+    "domains": {"authenticated":"boolean","has_permission":"boolean"},
+    "initial": ["reader"],
+    "states": [
+        {"id":"reader","facts":{"authenticated":true,"has_permission":false}},
+        {"id":"permitted","facts":{"authenticated":true,"has_permission":true}}
+    ],
+    "transitions": [
+        {"from":"reader","to":"permitted","action":"record_permission"},
+        {"from":"reader","to":"reader","action":"update","succeeded":false},
+        {"from":"permitted","to":"permitted","action":"update","succeeded":true,"guard":"has_permission"},
+        {"from":"reader","to":"reader","action":"update","succeeded":true}
+    ],
+    "properties": [
+        {"id":"update-authorized","rule":"authorization-bypass","action":"update","bindings":{"authenticated":"authenticated","has_permission":"has_permission"}}
+    ]
+}

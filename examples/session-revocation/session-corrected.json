@@ -1,0 +1,19 @@
+{
+    "name": "session-revocation-session-corrected",
+    "domains": {"session_status":["active","revoked","invalid"],"export_recorded":"boolean"},
+    "initial": ["active"],
+    "states": [
+        {"id":"active","facts":{"session_status":"active","export_recorded":false}},
+        {"id":"exported","facts":{"session_status":"active","export_recorded":true}},
+        {"id":"revoked","facts":{"session_status":"revoked","export_recorded":true}}
+    ],
+    "transitions": [
+        {"from":"active","to":"exported","action":"export","succeeded":true,"guard":["equals","session_status",["literal","active"]]},
+        {"from":"exported","to":"revoked","action":"record_revocation"},
+        {"from":"revoked","to":"revoked","action":"export","succeeded":false},
+        {"from":"revoked","to":"revoked","action":"export","succeeded":true,"guard":["equals","session_status",["literal","active"]]}
+    ],
+    "properties": [
+        {"id":"export-active-session","rule":"session-revocation","action":"export","bindings":{"session_status":"session_status"}}
+    ]
+}

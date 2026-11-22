@@ -1,0 +1,19 @@
+{
+    "name": "password-reset-replay-corrected",
+    "domains": {"consumed":"boolean","uses":[0,1,2]},
+    "initial": ["available"],
+    "states": [
+        {"id":"available","facts":{"consumed":false,"uses":0}},
+        {"id":"used","facts":{"consumed":true,"uses":1}},
+        {"id":"replayed","facts":{"consumed":true,"uses":2}}
+    ],
+    "transitions": [
+        {"from":"available","to":"used","action":"accept_once","succeeded":true,"guard":["not","consumed"]},
+        {"from":"used","to":"used","action":"accept_once","succeeded":false},
+        {"from":"used","to":"replayed","action":"accept_once","succeeded":true,"guard":["not","consumed"]}
+    ],
+    "properties": [
+        {"id":"acceptance-once","rule":"one-time-operation-replay","action":"accept_once","bindings":{"consumed":"consumed"}},
+        {"id":"usage-monotone","scope":"transition","assert":["gte",["post","uses"],["pre","uses"]]}
+    ]
+}

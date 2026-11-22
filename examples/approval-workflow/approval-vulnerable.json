@@ -1,0 +1,18 @@
+{
+    "name": "approval-workflow-approval-vulnerable",
+    "domains": {"stage":["draft","approved"],"approval_count":[0,1]},
+    "initial": ["draft"],
+    "states": [
+        {"id":"draft","facts":{"stage":"draft","approval_count":0}},
+        {"id":"approved","facts":{"stage":"approved","approval_count":1}}
+    ],
+    "transitions": [
+        {"from":"draft","to":"approved","action":"record_approval"},
+        {"from":"draft","to":"draft","action":"publish","succeeded":false},
+        {"from":"approved","to":"approved","action":"publish","succeeded":true,"guard":["and",["equals","stage",["literal","approved"]],["gte","approval_count",1]]},
+        {"from":"draft","to":"draft","action":"publish","succeeded":true}
+    ],
+    "properties": [
+        {"id":"publish-approved","rule":"workflow-precondition","action":"publish","requires":["and",["equals","stage",["literal","approved"]],["gte","approval_count",1]]}
+    ]
+}
