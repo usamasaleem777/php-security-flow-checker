@@ -48,7 +48,7 @@ The first visit shows the declared model graph as a preview. Metrics for runs an
 
 `public/index.php` loads `src/Web/` for loopback checks, catalog lookup, session history, verification routing and downloads. `src/Visualization/` serializes the engine observations for the graph and mathematics views. The browser renders those observations without computing reachability again.
 
-Only catalog identifiers can select models. The server checks the loopback client address and Host header. Verification requires a same-session CSRF token and a JSON POST body of at most 4 KiB. HTML exports are escaped and the browser receives a Content Security Policy. The web catalog reads bundled JSON files up to 96 KiB.
+Only catalog identifiers can select models, and each entry is checked against its canonical file path. The server checks the loopback client address and Host header. Verification requires a same-session CSRF token, a matching browser origin when supplied, and a JSON POST body of at most 4 KiB. Each endpoint accepts specific scalar query parameters, up to 2 KiB. Set `session.auto_start=0` so the dashboard can establish its own cookie policy. HTML exports are escaped and the browser receives a Content Security Policy. The web catalog reads bundled JSON files up to 96 KiB. [Security audit](SECURITY_AUDIT.md)
 
 | Limit | Maximum |
 | --- | ---: |

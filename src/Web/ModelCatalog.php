@@ -40,8 +40,13 @@ final readonly class ModelCatalog
     {
         $entry = $this->index()[$id] ?? throw new HttpError(404, 'The requested model is outside the approved catalog.');
         $root = realpath($this->directory);
-        $path = realpath($this->directory . '/' . $entry['file']);
-        if ($root === false || $path === false || !str_starts_with($path, $root . DIRECTORY_SEPARATOR) || !is_file($path)) {
+        if ($root === false) {
+            throw new RuntimeException('The catalog directory is unavailable.');
+        }
+        $expected = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $entry['file']);
+        $path = realpath($expected);
+        $samePath = $path !== false && (PHP_OS_FAMILY === 'Windows' ? strcasecmp($path, $expected) === 0 : $path === $expected);
+        if (!$samePath || $path === false || !is_file($path)) {
             throw new RuntimeException('The catalog file is unavailable.');
         }
         $json = @file_get_contents($path, length: self::MAX_MODEL_BYTES + 1);

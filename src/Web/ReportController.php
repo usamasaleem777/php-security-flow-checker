@@ -8,18 +8,20 @@ use SecurityFlow\Reporting\JsonReporter;
 
 final class ReportController
 {
+    private const PRETTY_INPUT_BYTES = 16_384;
+
     public function download(array $run, mixed $format): Response
     {
         $report = $run['report'];
         $name = 'stateaxiom-' . $run['id'];
         return match ($format) {
             'json' => new Response(
-                (new JsonReporter())->encode($report),
+                $this->encode($report),
                 'application/json; charset=utf-8',
                 headers: ['Content-Disposition' => "attachment; filename=$name.json"],
             ),
             'counterexamples' => new Response(
-                (new JsonReporter())->encode([
+                $this->encode([
                     'model' => $report['model'],
                     'status' => $report['status'],
                     'analysis_complete' => $report['analysis_complete'],
@@ -39,7 +41,7 @@ final class ReportController
     public function html(array $run): string
     {
         $report = $run['report'];
-        $contents = Response::escape((new JsonReporter())->encode($report));
+        $contents = Response::escape($this->encode($report));
         $model = Response::escape($report['model']);
         $status = Response::escape($report['status']);
         $created = Response::escape($run['created_at']);
@@ -63,5 +65,15 @@ final class ReportController
             <h2>Findings</h2>$overview<h2>Analyzer report</h2><pre>$contents</pre>
             </main></body></html>
             HTML;
+    }
+
+    private function encode(array $report): string
+    {
+        $compact = json_encode($report, JSON_THROW_ON_ERROR);
+        if (strlen($compact) > self::PRETTY_INPUT_BYTES) {
+            return $compact;
+        }
+        $pretty = (new JsonReporter())->encode($report);
+        return strlen($pretty) <= RunStore::MAX_BYTES ? $pretty : $compact;
     }
 }

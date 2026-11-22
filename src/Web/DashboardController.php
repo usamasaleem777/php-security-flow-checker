@@ -25,6 +25,15 @@ final readonly class DashboardController
             }
             $isPost = $route === 'run' && ($server['REQUEST_METHOD'] ?? '') === 'POST';
             RequestValidator::method($server, $isPost ? 'POST' : 'GET');
+            $fields = match ($route) {
+                'dashboard', 'models', 'runs', 'fixture-evidence' => [],
+                'model' => ['id', 'focus'],
+                'run' => $isPost ? [] : ['id'],
+                'graph' => ['id', 'focus', 'property'],
+                'report' => ['id', 'format'],
+                default => throw new HttpError(404, 'The dashboard route does not exist.'),
+            };
+            RequestValidator::query($server, $query, $fields);
             $store = new RunStore($session);
             if ($isPost) {
                 $options = RequestValidator::run($server, $body, $this->token($session));

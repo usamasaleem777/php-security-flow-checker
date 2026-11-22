@@ -1,0 +1,3 @@
+# Only this subtree is served, even from an Apache htdocs parent.
+AuthMerging Off
+Require local

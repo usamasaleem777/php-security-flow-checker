@@ -17,8 +17,11 @@ if (PHP_VERSION_ID < 80200) {
 
 require_once dirname(__DIR__) . '/src/Web/bootstrap.php';
 
+ini_set('display_errors', '0');
+
 try {
     RequestValidator::local($_SERVER);
+    RequestValidator::querySize($_SERVER);
     if (($_SERVER['PATH_INFO'] ?? '') !== '') {
         throw new HttpError(404, 'The dashboard route does not exist.');
     }
@@ -36,6 +39,9 @@ try {
     if (!extension_loaded('session')) {
         throw new HttpError(503, 'The PHP session extension is required for dashboard runs.');
     }
+    if (session_status() !== PHP_SESSION_NONE) {
+        throw new HttpError(503, 'The dashboard requires session.auto_start to be disabled.');
+    }
     session_name('STATEAXIOM_DASHBOARD');
     $prefix = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
     $cookiePath = preg_match('/\A\/[A-Za-z0-9_\/.-]*\z/', $prefix) === 1 ? rtrim($prefix, '/') . '/' : '/';
@@ -48,6 +54,8 @@ try {
         'cookie_samesite' => 'Strict',
         'cookie_secure' => ($_SERVER['HTTPS'] ?? '') === 'on',
         'cookie_path' => $cookiePath,
+        'cookie_domain' => '',
+        'cookie_lifetime' => 0,
         'cache_limiter' => '',
     ])) {
         throw new HttpError(503, 'Could not start the local dashboard session.');

@@ -1,0 +1,10 @@
+parameters:
+    level: 3
+    phpVersion: 80200
+    paths:
+        - src
+        - public
+        - bin
+        - benchmark
+        - tools
+    tmpDir: tmp/phpstan

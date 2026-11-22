@@ -1,6 +1,6 @@
 # PHP Security Flow Checker
 
-PHP Security Flow Checker is a Core PHP command-line model checker for finite security workflows. Phase 2 adds typed state domains, guarded transitions, operation-time security rules, and deterministic findings with shortest counterexamples.
+PHP Security Flow Checker is a Core PHP mathematical verification engine for finite-state security workflows. Its CLI and local dashboard analyze typed models, guarded transitions and security properties, with reproducible reports and shortest counterexamples. The project is preparing an initial research preview. [Release draft](docs/RELEASE_DRAFT_v0.1.0.md)
 
 ## Local dashboard
 
@@ -13,6 +13,8 @@ php -S 127.0.0.1:8080 -t public
 On XAMPP for Windows, use `C:\xampp\php\php.exe -S 127.0.0.1:8080 -t public` from the same directory. Open [the local dashboard](http://127.0.0.1:8080/).
 
 Select a bundled model, set exploration limits, and run verification. The dashboard records the analyzer's actual result in the browser session. Inspect the SVG state graph, step through a counterexample, review fixed-point iterations and policy evaluations, or compare two model runs. Reports offers JSON, HTML and counterexample downloads.
+
+![Local dashboard showing three MFA model states and an empty verification history](docs/images/dashboard.png)
 
 Run the Phase 4 server-side suite with `php tests/dashboard.php` or `php -n tests/dashboard.php`. The dashboard and CLI share the PHP verification engine. HTTP replay remains an outstanding Phase 3 milestone and the interface displays `NOT_RUN`. [Dashboard setup](docs/DASHBOARD.md) · [Graph controls](docs/GRAPH_VISUALIZATION.md) · [Mathematical visualization](docs/MATHEMATICAL_VISUALIZATION.md)
 
@@ -118,6 +120,15 @@ The engine computes a least fixed point over enabled edges and uses multi-source
 
 Model adequacy determines what a result says about an application. A finding demonstrates an assertion failure in the supplied graph. Runtime confirmation requires independent evidence. The analyzer covers explicit finite state and transition safety. Time and concurrency are considered only where encoded in the model, and liveness properties such as eventual progress are outside its scope.
 
+```mermaid
+flowchart LR
+    A["Finite workflow JSON"] --> B["Typed model and guard validation"]
+    B --> C["Shared PHP verifier"]
+    C --> D["Reachability, assertions and shortest witnesses"]
+    D --> E["CLI reports"]
+    D --> F["Local dashboard, SVG and exports"]
+```
+
 ## Corrected PHP control tests
 
 Run the opt-in CLI fixture suite to check MFA enforcement, session and permission revocation, single-use tokens, session isolation, and temporary session-store cleanup.
@@ -128,3 +139,21 @@ php -n tests/corrected-controls.php
 ```
 
 The suite runs corrected PHP code in the CLI process and compares actual operation results and side effects against expectations. It reports `PHP_CONTROL_ASSERTIONS` with `http_replay_status: "NOT_RUN"`. See the [test instructions](docs/RUNTIME_VERIFICATION.md), [evidence model](docs/EVIDENCE_MODEL.md), and [security boundaries](docs/SECURITY_BOUNDARIES.md).
+
+## Research and validation
+
+```sh
+php -n tests/reference.php
+php -n tests/security.php
+php -n tests/benchmark.php
+php -n tools/lint.php --include-untracked
+php -n benchmark/run.php --seed=20261122 --repetitions=5 --output=tmp/benchmark-reproduction
+```
+
+The recorded benchmark completed 80 local measurements on Windows PHP 8.2.12. The largest chain reached 5,000 states and evaluated 6,639 transitions with a 26.964 ms verification median. The independent tests compare production results with a reference relation scan and shortest-distance relaxation. [Benchmark results](docs/BENCHMARK_RESULTS.md) · [Mathematical validation](docs/MATHEMATICAL_VALIDATION.md) · [Research methodology](docs/RESEARCH_METHODOLOGY.md)
+
+The dashboard is a local developer tool. Phase 3 HTTP replay remains `NOT_RUN`, and exploration limits can leave a model result incomplete. [Security audit](docs/SECURITY_AUDIT.md) · [Limitations](docs/LIMITATIONS.md)
+
+## Community
+
+See the [contribution guide](CONTRIBUTING.md), [security policy](SECURITY.md), [code of conduct](CODE_OF_CONDUCT.md), [changelog](CHANGELOG.md), and [MIT license](LICENSE).
