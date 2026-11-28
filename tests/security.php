@@ -77,7 +77,7 @@ $tests = [
         if (!extension_loaded('session')) {
             return 'The PHP session extension is unavailable.';
         }
-        $store = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'stateaxiom-session-' . bin2hex(random_bytes(12));
+        $store = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'stateaxiom-session~' . bin2hex(random_bytes(12));
         securityCheck(mkdir($store, 0700), 'Could not create an isolated PHP session directory.');
         try {
             $program = <<<'PHP'
@@ -85,10 +85,11 @@ $tests = [
                 require $argv[1];
                 exit(http_response_code() === 503 ? 0 : 1);
                 PHP;
+            // Windows temp paths can contain a tilde, which the INI parser treats as an operator.
             $process = proc_open([
-                PHP_BINARY, '-n', '-d', 'session.auto_start=1', '-d', "session.save_path=$store",
+                PHP_BINARY, '-n', '-d', 'session.auto_start=1', '-d', 'session.save_path=.',
                 '-r', $program, '--', __DIR__ . '/../public/index.php',
-            ], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => STDERR], $pipes, options: ['bypass_shell' => true]);
+            ], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => STDERR], $pipes, cwd: $store, options: ['bypass_shell' => true]);
             securityCheck(is_resource($process), 'Could not start the PHP probe.');
             fclose($pipes[0]);
             $output = stream_get_contents($pipes[1]);
